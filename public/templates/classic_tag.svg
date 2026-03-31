@@ -1,0 +1,15 @@
+<svg width="200" height="300" viewBox="0 0 200 300" xmlns="http://www.w3.org/2000/svg">
+  <rect width="200" height="300" fill="white" stroke="#ccc" stroke-width="2" rx="10" />
+  <text id="season" x="20" y="40" font-family="Arial" font-size="14" fill="#666">SEASON</text>
+  <text id="styleName" x="20" y="70" font-family="Arial" font-size="18" font-weight="bold" fill="#000">STYLE NAME</text>
+  <text id="sku" x="20" y="100" font-family="Arial" font-size="14" fill="#333">SKU: 000000</text>
+  <text id="color" x="20" y="130" font-family="Arial" font-size="14" fill="#333">COLOR: RED</text>
+  
+  <rect x="20" y="160" width="160" height="60" fill="#f0f0f0" rx="5" />
+  <text id="size" x="100" y="200" font-family="Arial" font-size="32" font-weight="bold" fill="#000" text-anchor="middle">100</text>
+  
+  <text id="additionalText" x="20" y="250" font-family="Arial" font-size="12" fill="#666">ADDITIONAL TEXT</text>
+  
+  <!-- Barcode Placeholder -->
+  <rect id="barcode" x="20" y="270" width="160" height="15" fill="#000" />
+</svg>

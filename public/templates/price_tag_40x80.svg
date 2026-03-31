@@ -1,0 +1,61 @@
+<svg width="40mm" height="80mm" viewBox="0 0 400 800" xmlns="http://www.w3.org/2000/svg">
+  <!-- Border -->
+  <rect x="10" y="10" width="380" height="780" rx="6" fill="none" stroke="black" stroke-width="2"/>
+  
+  <!-- Punching Hole -->
+  <circle cx="200" cy="60" r="28" fill="none" stroke="black" stroke-width="1.5"/>
+  
+  <!-- Dotted Line (Perforation) -->
+  <line x1="20" y1="540" x2="380" y2="540" stroke="black" stroke-width="1.5" stroke-dasharray="8 6"/>
+
+  <!-- Top Section Content -->
+  <g font-family="sans-serif" font-size="20">
+    <text x="30" y="140" textLength="90" lengthAdjust="spacing">제 품 명 :</text>
+    <text x="130" y="140" id="value_productName_top" font-size="20">Premium Summer T-Shirt</text>
+    
+    <text x="30" y="180" textLength="90" lengthAdjust="spacing">품     번 :</text>
+    <text x="130" y="180" id="value_styleCode_top" font-size="20">TS-2025-001</text>
+    
+    <text x="30" y="220" textLength="90" lengthAdjust="spacing">옵     션 :</text>
+    <text x="130" y="220" id="value_option_top" font-size="20">NAVY BLUE, 100</text>
+    
+    <text x="30" y="260" textLength="90" lengthAdjust="spacing">권장연령 :</text>
+    <text x="130" y="260" id="value_age_top" font-size="20">3-6 years</text>
+    
+    <text x="30" y="300" textLength="90" lengthAdjust="spacing">혼 용 률 :</text>
+    <text x="130" y="300" id="value_material_top" font-size="20">Cotton 100%</text>
+    
+    <text x="30" y="340" textLength="90" lengthAdjust="spacing">제 조 사 :</text>
+    <text x="130" y="340" id="value_maker_top" font-size="20">Designer Co.</text>
+    
+    <text x="30" y="380" textLength="90" lengthAdjust="spacing">제 조 국 :</text>
+    <text x="130" y="380" id="value_country_top" font-size="20">Made in Korea</text>
+    
+    <text x="30" y="420" textLength="90" lengthAdjust="spacing">판 매 가 :</text>
+    <text x="130" y="420" id="value_price_top" font-size="20">29,900 KRW</text>
+  </g>
+
+  <!-- Top Barcode Section -->
+  <g id="barcode_target_top" transform="translate(40, 445)"></g>
+  <text x="200" y="525" id="value_barcode_top" font-family="sans-serif" font-size="18.5" text-anchor="middle">880123456789</text>
+
+  <!-- Bottom Section Content -->
+  <!-- Bottom Section Content -->
+  <g font-family="sans-serif">
+    <!-- Bottom Barcode -->
+    <g id="barcode_target_bottom" transform="translate(40, 560)"></g>
+    <text x="200" y="640" id="value_barcode_bottom" font-size="18.5" text-anchor="middle">880123456789</text>
+    
+    <!-- Labeled Info -->
+    <g font-size="20" text-anchor="start">
+      <text x="30" y="690" textLength="90" lengthAdjust="spacing">제 품 명 :</text>
+      <text x="130" y="690" id="value_productName_bottom" font-size="20" font-weight="bold">Premium Summer T-Shirt</text>
+      
+      <text x="30" y="730" textLength="90" lengthAdjust="spacing">옵     션 :</text>
+      <text x="130" y="730" id="value_option_bottom" font-size="20">NAVY BLUE, 100</text>
+      
+      <text x="30" y="770" textLength="90" lengthAdjust="spacing">판 매 가 :</text>
+      <text x="130" y="770" id="value_price_bottom" font-size="20" font-weight="bold">29,900 KRW</text>
+    </g>
+  </g>
+</svg>
