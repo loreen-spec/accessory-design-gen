@@ -1,7 +1,6 @@
 import { saveAs } from 'file-saver';
 import { jsPDF } from 'jspdf';
 import JSZip from 'jszip';
-import { svg2pdf } from 'svg2pdf.js';
 
 // Helper to fetch the logo as base64 at runtime
 async function getLogoBase64(): Promise<string | null> {
@@ -20,66 +19,74 @@ async function getLogoBase64(): Promise<string | null> {
     }
 }
 
-export async function downloadSvg(svgContent: string, fileName: string) {
-    const blob = new Blob([svgContent], { type: 'image/svg+xml;charset=utf-8' });
-    saveAs(blob, `${fileName}.svg`);
-}
-
-export async function downloadPng(svgContent: string, fileName: string, templateId?: string) {
+// Helper to consolidate logo injection for Care Label
+async function getFinalSvgContent(svgContent: string, templateId?: string): Promise<string> {
     let finalSvgContent = svgContent;
-
-    // Dynamic logo injection for Care Label only during export
     if (templateId === 'care_label_30x73') {
         const logoData = await getLogoBase64();
         if (logoData) {
-            // Updated to x=242, y=471 to center between Maker (470) and Country (505)
             const x = 242; 
             const y = 471; 
             const logoTag = `<image x="${x}" y="${y}" width="25" height="33" href="${logoData}"/>`;
             finalSvgContent = finalSvgContent.replace('</g>', `${logoTag}\n  </g>`);
         }
     }
+    return finalSvgContent;
+}
 
-    const canvas = document.createElement('canvas');
-    const svg = new Blob([finalSvgContent], { type: 'image/svg+xml;charset=utf-8' });
-    const url = URL.createObjectURL(svg);
-
-    const img = new Image();
-    img.onload = () => {
-        // High Quality Scale (4x)
-        const scale = 4;
-        canvas.width = img.width * scale;
-        canvas.height = img.height * scale;
+// Helper to render SVG to a high-resolution PNG Data URL
+async function svgToDataUrl(svgContent: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+        const svg = new Blob([svgContent], { type: 'image/svg+xml;charset=utf-8' });
+        const url = URL.createObjectURL(svg);
+        const img = new Image();
         
-        const ctx = canvas.getContext('2d');
-        if (ctx) {
-            ctx.fillStyle = 'white';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            // Draw image scaled up
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-            canvas.toBlob((blob) => {
-                if (blob) saveAs(blob, `${fileName}.png`);
+        img.onload = () => {
+            const scale = 4; // High Quality Scale
+            const canvas = document.createElement('canvas');
+            canvas.width = img.width * scale;
+            canvas.height = img.height * scale;
+            
+            const ctx = canvas.getContext('2d');
+            if (ctx) {
+                ctx.fillStyle = 'white';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                const dataUrl = canvas.toDataURL('image/png');
                 URL.revokeObjectURL(url);
-            }, 'image/png');
-        }
-    };
-    img.src = url;
+                resolve(dataUrl);
+            } else {
+                reject(new Error("Failed to get canvas context"));
+            }
+        };
+        
+        img.onerror = (err) => {
+            URL.revokeObjectURL(url);
+            reject(err);
+        };
+        
+        img.src = url;
+    });
+}
+
+export async function downloadSvg(svgContent: string, fileName: string) {
+    const blob = new Blob([svgContent], { type: 'image/svg+xml;charset=utf-8' });
+    saveAs(blob, `${fileName}.svg`);
+}
+
+export async function downloadPng(svgContent: string, fileName: string, templateId?: string) {
+    const finalSvgContent = await getFinalSvgContent(svgContent, templateId);
+    const dataUrl = await svgToDataUrl(finalSvgContent);
+    
+    // Convert Data URL back to Blob for file-saver
+    const response = await fetch(dataUrl);
+    const blob = await response.blob();
+    saveAs(blob, `${fileName}.png`);
 }
 
 export async function downloadPdf(svgContent: string, fileName: string, templateId?: string) {
-    let finalSvgContent = svgContent;
-
-    // Dynamic logo injection for Care Label only during export
-    if (templateId === 'care_label_30x73') {
-        const logoData = await getLogoBase64();
-        if (logoData) {
-            const x = 242;
-            const y = 471;
-            const logoTag = `<image x="${x}" y="${y}" width="25" height="33" href="${logoData}"/>`;
-            finalSvgContent = finalSvgContent.replace('</g>', `${logoTag}\n  </g>`);
-        }
-    }
-
+    const finalSvgContent = await getFinalSvgContent(svgContent, templateId);
+    
     const parser = new DOMParser();
     const svgDoc = parser.parseFromString(finalSvgContent, 'image/svg+xml');
     const element = svgDoc.documentElement as unknown as SVGSVGElement;
@@ -87,22 +94,18 @@ export async function downloadPdf(svgContent: string, fileName: string, template
     const width = parseFloat(element.getAttribute('width') || '0');
     const height = parseFloat(element.getAttribute('height') || '0');
     
-    const widthPts = width * 2.83465;
+    const widthPts = width * 2.83465; // mm to points
     const heightPts = height * 2.83465;
 
     const pdf = new jsPDF({
         orientation: width > height ? 'l' : 'p',
         unit: 'pt',
-        format: [widthPts, heightPts]
+        format: [widthPts, heightPts],
+        compress: true // Reduce file size
     });
 
-    await svg2pdf(element, pdf, {
-        x: 0,
-        y: 0,
-        width: widthPts,
-        height: heightPts
-    });
-
+    const dataUrl = await svgToDataUrl(finalSvgContent);
+    pdf.addImage(dataUrl, 'PNG', 0, 0, widthPts, heightPts, undefined, 'FAST');
     pdf.save(`${fileName}.pdf`);
 }
 
@@ -127,25 +130,24 @@ export async function downloadMultiPagePdf(
     const pdf = new jsPDF({
         orientation: widthMm > heightMm ? 'l' : 'p',
         unit: 'pt',
-        format: [widthPts, heightPts]
+        format: [widthPts, heightPts],
+        compress: true
     });
-
-    const parser = new DOMParser();
 
     for (let i = 0; i < files.length; i++) {
         const file = files[i];
         if (i > 0) pdf.addPage([widthPts, heightPts], widthMm > heightMm ? 'l' : 'p');
 
-        const svgDoc = parser.parseFromString(file.content, 'image/svg+xml');
-        const element = svgDoc.documentElement as unknown as SVGSVGElement;
-
-        await svg2pdf(element, pdf, {
-            x: 0,
-            y: 0,
-            width: widthPts,
-            height: heightPts
-        });
+        // Note: Batch mode uses the design content Directly. 
+        // Logic for logo injection is assumed to be handled by the caller or needed here.
+        // For safety, we process the content here if it's the care label.
+        const templateId = widthMm === 30 && heightMm === 73 ? 'care_label_30x73' : undefined;
+        const finalSvgContent = await getFinalSvgContent(file.content, templateId);
+        
+        const dataUrl = await svgToDataUrl(finalSvgContent);
+        pdf.addImage(dataUrl, 'PNG', 0, 0, widthPts, heightPts, undefined, 'FAST');
     }
 
     pdf.save(`${pdfName}.pdf`);
 }
+
