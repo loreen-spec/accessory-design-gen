@@ -58,8 +58,8 @@ export const DesignCard: React.FC<DesignCardProps> = ({ svgContent, size, styleN
                             alt="KC logo" 
                             style={{
                                 position: 'absolute',
-                                left: '80.6%', // Near the end of Country line (x=242/300)
-                                top: '66.7%',   // Center-aligned with Country line (y=487/730)
+                                left: '80.6%', // Near the end of lines (x=242/300)
+                                top: '64.5%',   // Centered between Maker (y=470) and Country (y=505)
                                 width: '8.3%', // Small size (25/300)
                                 height: 'auto',
                                 pointerEvents: 'none'

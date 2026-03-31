@@ -32,9 +32,9 @@ export async function downloadPng(svgContent: string, fileName: string, template
     if (templateId === 'care_label_30x73') {
         const logoData = await getLogoBase64();
         if (logoData) {
-            // Updated to x=242, y=487 to match Country line baseline
+            // Updated to x=242, y=471 to center between Maker (470) and Country (505)
             const x = 242; 
-            const y = 487; 
+            const y = 471; 
             const logoTag = `<image x="${x}" y="${y}" width="25" height="33" href="${logoData}"/>`;
             finalSvgContent = finalSvgContent.replace('</g>', `${logoTag}\n  </g>`);
         }
@@ -74,7 +74,7 @@ export async function downloadPdf(svgContent: string, fileName: string, template
         const logoData = await getLogoBase64();
         if (logoData) {
             const x = 242;
-            const y = 487;
+            const y = 471;
             const logoTag = `<image x="${x}" y="${y}" width="25" height="33" href="${logoData}"/>`;
             finalSvgContent = finalSvgContent.replace('</g>', `${logoTag}\n  </g>`);
         }
